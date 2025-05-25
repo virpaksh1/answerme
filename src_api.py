@@ -58,4 +58,4 @@ except Exception as e:
         )
 
 load_time = time.time() - start_time
-print(f"Model loaded in {load_time:.2f} seconds")
+print(f"Model loaded within {load_time:.2f} seconds")
