@@ -65,7 +65,7 @@ def generate_response(user_input, chat_history=None):
         chat_history = []
 
     system_prompt = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should be engaging and fun.
-If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information, you are also a motor driver ,sometimes you need to tell motor to move in degrees left or right."""
 
     # Formatting the conversation for the model
     messages = [{"role": "system", "content": system_prompt}]
