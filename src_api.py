@@ -59,3 +59,47 @@ except Exception as e:
 
 load_time = time.time() - start_time
 print(f"Model loaded within {load_time:.2f} seconds")
+
+def generate_response(user_input, chat_history=None):
+    if chat_history is None:
+        chat_history = []
+
+    system_prompt = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should be engaging and fun.
+If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+
+    # Formatting the conversation for the model
+    messages = [{"role": "system", "content": system_prompt}]
+
+    # Adding chat history for a full context of the conversation
+    for message in chat_history:
+        messages.append(message)
+
+    # Adding the current user input
+    messages.append({"role": "user", "content": user_input})
+
+    # Tokenization: converting messages to model input format
+    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+
+    # Generating response: this part may take some time to execute at first
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=512,
+            do_sample=True,
+            temperature=0.7,
+            top_p=0.9,
+            pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id
+        )
+
+    # Decoding the generated response
+    full_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Extracting only the assistant's response, instead of the full raw output
+    assistant_response = full_response.split(user_input)[-1].strip()
+
+    # Further cleaning up the response if it contains role markers or other artifacts
+    if "assistant" in assistant_response.lower()[:20]:
+        assistant_response = assistant_response.split(":", 1)[-1].strip()
+
+    return assistant_response
