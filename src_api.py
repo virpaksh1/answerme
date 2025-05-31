@@ -104,3 +104,76 @@ if a table with information is provided answer accordingly."""
         assistant_response = assistant_response.split(":", 1)[-1].strip()
 
     return assistant_response
+
+#simple UI
+def create_assistant_ui():
+    output = widgets.Output()
+    input_box = widgets.Text(
+        value='',
+        placeholder='Ask me...',
+        description='Question:',
+        layout=widgets.Layout(width='80%')
+    )
+    send_button = widgets.Button(description="Send")
+    clear_button = widgets.Button(description="Clear Chat")
+
+    chat_history = []
+
+    def on_send_button_clicked(b):
+        user_input = input_box.value
+        if not user_input.strip():
+            return
+
+        with output:
+            print(f"You: {user_input}")
+
+            # Show thinking indicator
+            print("Assistant: Thinking...", end="\r")
+
+            # Generate response
+            start_time = time.time()
+            try:
+                response = generate_response(user_input, chat_history)
+                end_time = time.time()
+
+                # Clear the "thinking" message
+                clear_output(wait=True)
+
+                # Display the exchange
+                print(f"You: {user_input}")
+                print(f"Assistant: {response}")
+                print(f"\n(Response generated in {end_time - start_time:.2f} seconds)")
+
+                # Update chat history
+                chat_history.append({"role": "user", "content": user_input})
+                chat_history.append({"role": "assistant", "content": response})
+            except Exception as e:
+                clear_output(wait=True)
+                print(f"You: {user_input}")
+                print(f"Error generating response: {str(e)}")
+                import traceback
+                traceback.print_exc()
+
+        # Clear input box
+        input_box.value = ''
+
+    def on_clear_button_clicked(b):
+        with output:
+            clear_output()
+            print("Chat cleared!")
+        chat_history.clear()
+
+    # Connect button clicks to functions
+    send_button.on_click(on_send_button_clicked)
+    clear_button.on_click(on_clear_button_clicked)
+
+    # Handle Enter key in input box
+    def on_enter(sender):
+        on_send_button_clicked(None)
+    input_box.on_submit(on_enter)
+
+    # Arrange UI components
+    input_row = widgets.HBox([input_box, send_button, clear_button])
+    ui = widgets.VBox([output, input_row])
+
+    return ui
