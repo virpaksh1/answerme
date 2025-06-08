@@ -27,6 +27,7 @@ Install the required packages:
 
 ```bash
 pip install torch transformers bitsandbytes ipywidget
+```
 
 ### choose interface
 Choose interface (1 for UI, 2 for CLI):
